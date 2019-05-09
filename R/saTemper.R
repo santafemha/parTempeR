@@ -1,8 +1,9 @@
 #' @title Parallel tempering for function minimization
 #'
-#' @author Michael Holton Price <MichaelHoltonPrice@gmail.com>
-
+#' @author Michael Holton Price <MichaelHoltonPrice@@gmail.com>
+#'
 #' @export
+
 saTemper <- function(costFunc,init,tempVect=NA,...,control=list()) {
 
   haveChains <- is.list(init)
