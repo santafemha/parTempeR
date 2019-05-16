@@ -4,8 +4,13 @@
 #'
 #' @export
 
-saTemperBest <- function(temper) {
-  bestChain <- which.min(unlist(lapply(temper$chainList,function(x){min(x$costVect)})))
-  theta <- temper$chainList[[bestChain]]$X_mat[,which.min(temper$chainList[[bestChain]]$costVect)]
+saTemperBest <- function(input,chainsOnly=F) {
+  if(chainsOnly) {
+    chainList <- input
+  } else {
+    chainList <- input$chainList
+  }
+  bestChain <- which.min(unlist(lapply(chainList,function(x){min(x$sampFuncVect)})))
+  theta <- chainList[[bestChain]]$X_mat[,which.min(chainList[[bestChain]]$sampFuncVect)]
   return(theta)
 }

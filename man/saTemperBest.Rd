@@ -4,7 +4,7 @@
 \alias{saTemperBest}
 \title{Get best value from call to saTemper}
 \usage{
-saTemperBest(temper)
+saTemperBest(input, chainsOnly = F)
 }
 \description{
 Get best value from call to saTemper
