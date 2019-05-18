@@ -7,7 +7,7 @@
 #' (1) The initial value x = init is directly given
 #' (2) This is a continuation of a previous parallel tempering "run" for which init is the output of that run
 #'
-#' saTemper requires three key control variables to run: (1) a vector of temperatures, tempVect, ordered from small to large temperatures; (2) the number of cycles, numCyc, where each cycle consists of a set of within-chain Metropolis samples at each temperature followed by an attempt to swap samples across chains; and (3) the number of within-chain Metropolis samples for each temperature, M.
+#' parTemper requires three key control variables to run: (1) a vector of temperatures, tempVect, ordered from small to large temperatures; (2) the number of cycles, numCyc, where each cycle consists of a set of within-chain Metropolis samples at each temperature followed by an attempt to swap samples across chains; and (3) the number of within-chain Metropolis samples for each temperature, M.
 #'
 #' There are three ways to specify these (and other) control variables: a default, a named variable in the input control list, and (for continued chains) the control variable used in the previous chains, init$control.
 #'
@@ -23,9 +23,9 @@
 #'     new:    default < input
 #'     cont:   prev < input
 #'
-#' In addition to these three, key control variables (tempVect, numCyc, and M), additional control variables can be specified to influence both the behavior of saTemper and the call to samMCMC by saTemper. If the control variable verbose is TRUE [the default is FALSE] diagnostic information is printed as the algorithm runs; the preference ordering for verbose is default < prev < input, where prev is the previous value used if this is a continued run.
+#' In addition to these three, key control variables (tempVect, numCyc, and M), additional control variables can be specified to influence both the behavior of parTemper and the call to samMCMC by saTemper. If the control variable verbose is TRUE [the default is FALSE] diagnostic information is printed as the algorithm runs; the preference ordering for verbose is default < prev < input, where prev is the previous value used if this is a continued run.
 #'
-#' In addition to control variables that apply directly to saTemper, the following four control variables for the call to samMCMC an be specified: C_0, t_0, epsilon, and verbose. verbose for the call to samMCMC is set via the control variable metropVerbose since verbose is also a control variable used in saTemper. C_0, t_0, and epsilon can only be set for new chains. If the user attempts to set them for continued chains, an error is raised. If they are not set for a new chain, samMCMC will use default values. metropVerbose can always be set and reset, with the preference ordering default [FALSE] < prev < input.
+#' In addition to control variables that apply directly to parTemper, the following four control variables for the call to samMCMC an be specified: C_0, t_0, epsilon, and verbose. verbose for the call to samMCMC is set via the control variable metropVerbose since verbose is also a control variable used in saTemper. C_0, t_0, and epsilon can only be set for new chains. If the user attempts to set them for continued chains, an error is raised. If they are not set for a new chain, samMCMC will use default values. metropVerbose can always be set and reset, with the preference ordering default [FALSE] < prev < input.
 #'
 #' Finally, we provide a brief summary of the algorithm itself. Further details can  be found in the technical material linked to in the README at https://github.com/santafemha/parTempeR.
 #'
@@ -37,22 +37,22 @@
 #'
 #' a = min(1,exp(-(c_kp1-c_k)*(1/T_k-1/T_kp1)))
 #'
-#' The swap is accepted with probability a, and otherwise rejected. The cycle of within-chain sampling followed by a single swap attempt is repeated numCyc times. The minimum value of this procedure can be extracted from the output by calling the function saTemperBest.
+#' The swap is accepted with probability a, and otherwise rejected. The cycle of within-chain sampling followed by a single swap attempt is repeated numCyc times. The minimum value of this procedure can be extracted from the output by calling the function parTemperBest.
 #'
 #' @param costFunc The cost function (often a negative log-likelihood)
 #' @param init The starting point for sampling or the output from a previous call 
-#' to saTemper
+#' to parTemper
 #' @param ... Further arguments to be passed to costFunc
 #' @param control A list of control parameters. See Details.
 #'
-#' @return An object of class \code{saTemper} that is a list containing the samples along 
+#' @return An object of class \code{parTemper} that is a list containing the samples along 
 #' with summary information
 #'
 #' @author Michael Holton Price <MichaelHoltonPrice@@gmail.com>
 #' 
 #' @export
 
-saTemper <- function(costFunc,init,...,control=list()) {
+parTemper <- function(costFunc,init,...,control=list()) {
   # The following control variables for the call to samMCMC can be set
   # initially for new runs, but not modified for continuing runs:
   #
@@ -63,14 +63,14 @@ saTemper <- function(costFunc,init,...,control=list()) {
   # The following control variable for the call to samMCMC can be set each
   # time:
   #
-  # verbose [metropVerbose in the saTemper control variable]
+  # verbose [metropVerbose in the parTemper control variable]
   #
   # The following control variables for the call to samMCMC are fixed:
   #
   # thinning = 1
   # numSampBurn = 0
 
-  newRun <- !('saTemper' %in% class(init))
+  newRun <- !('parTemper' %in% class(init))
   # K is the number of temperatures
   # M is the samples between swap attempts
   # numCyc is the number of cycles
@@ -237,7 +237,7 @@ saTemper <- function(costFunc,init,...,control=list()) {
     if(control$verbose) {
       state1 <- unlist(lapply(chainList,function(x){x$costVect[length(x$costVect)]}))
       print(rbind(state0,state1))
-      print(saTemperBest(chainList,chainsOnly=T))
+      print(parTemperBest(chainList,chainsOnly=T))
     }
   }
 
@@ -247,6 +247,6 @@ saTemper <- function(costFunc,init,...,control=list()) {
   } else {
     out$swapMat <- rbind(init$swapMat,swapMat)
   }
-  class(out) <- 'saTemper'
+  class(out) <- 'parTemper'
   return(out)
 }
