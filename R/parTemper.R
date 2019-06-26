@@ -89,7 +89,7 @@ parTemper <- function(costFunc,init,...,control=list()) {
 
   # Set tempVect
   if(newRun) {
-    if(!('tempVect' %in% inputControl)) {
+    if(!('tempVect' %in% names(inputControl))) {
       control$tempVect <- 200 * .75^(50 - 1:50)
     } else {
       control$tempVect <- inputControl$tempVect
